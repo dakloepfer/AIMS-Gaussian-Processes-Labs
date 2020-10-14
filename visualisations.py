@@ -17,8 +17,6 @@ def plot_true_data(x, y, x_label, y_label, y_noise=0):
         Returns:
             None
     '''
-    if np.isscalar(y_noise):
-        y_noise = y_noise * np.ones_like(y)
 
     plt.errorbar(x, y, yerr=y_noise, fmt='+', label='ground truths', color='black', zorder=0)
 
@@ -72,6 +70,10 @@ def plot_uncertainty(x, mean, cov_matrix, n_stdevs=1, x_label='', y_label=''):
         n_stdevs = [n_stdevs]
 
     for n in n_stdevs:
-        plt.fill_between(x, mean + n*stdevs, mean - n*stdevs, label='%d stdevs' %n, zorder=-10*n, color='red', alpha=1/(n+2), edgecolor='none')
+
+        upper_limit = np.squeeze(mean) + n*stdevs
+        lower_limit = np.squeeze(mean) - n*stdevs
+
+        plt.fill_between(np.squeeze(x), upper_limit, lower_limit, label='%d stdevs' %n, zorder=-10*n, color='red', alpha=1/(n+2), edgecolor='none')
 
     plt.legend()
