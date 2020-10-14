@@ -22,13 +22,14 @@ def posterior_predictive_distr(X, y, target_noise, X_star, mean_f, cov_f, jitter
     '''
 
     # Compute number of points
-    n = np.shape(X)[1]
+    n = np.shape(y)[0]
 
+    #print(target_noise * np.eye(n) + jitter * np.eye(n))
     # Cholesky decomposition
     L = np.linalg.cholesky(cov_f(X, X) + (target_noise + jitter) * np.eye(n))
 
     # Compute repeated terms
-    L_inv = np.linalg.inv(L) # inverse of Cholesky decomposition
+    L_inv = np.linalg.pinv(L) # inverse of Cholesky decomposition
     k_star = cov_f(X_star, X) # prior covariance matrix at the test points with the data points as computed by cov_f
 
     # Compute mean_star
@@ -42,9 +43,9 @@ def posterior_predictive_distr(X, y, target_noise, X_star, mean_f, cov_f, jitter
     return mean_star, cov_star
 
 
-def marg_log_likelihood(params, n_mean_f_params, mean_f, cov_f, X, y, target_noise, jitter=1e-5):
+def neg_marg_log_likelihood(params, n_mean_f_params, mean_f, cov_f, X, y, target_noise, jitter=1e-5):
     '''
-        Compute and returns the marginal log-likelihood given known target values at n points (the known target values may have some variance).
+        Compute and returns the negative marginal log-likelihood given known target values at n points (the known target values may have some variance).
 
         Args:
             params: an array of numbers giving the values for the hyperparameters for mean_f and cov_f to be used, with the first n_mean_f_params parameters belonging to mean_f 
@@ -60,7 +61,7 @@ def marg_log_likelihood(params, n_mean_f_params, mean_f, cov_f, X, y, target_noi
             jitter: small artificial noise that is added to the covariance function for computational stability (float)
 
         Returns:
-            log_likelihood: a float giving the value for the marginal log-likelihood
+            neg_log_likelihood: a float giving the value for the negative marginal log-likelihood
     '''
 
     # find parameters for mean_f and cov_f
@@ -72,13 +73,13 @@ def marg_log_likelihood(params, n_mean_f_params, mean_f, cov_f, X, y, target_noi
 
     # Cholesky decomposition
     L = np.linalg.cholesky(cov_f(X, X, cov_f_params) + (target_noise + jitter) * np.eye(n))
-    L_inv = np.linalg.inv(L) # inverse of Cholesky decomposition
+    L_inv = np.linalg.pinv(L) # inverse of Cholesky decomposition
 
     alpha = np.transpose(L_inv) @ (L_inv @ (y - mean_f(X, mean_f_params))) # intermediary helper value
 
-    log_likelihood = -0.5 * (np.transpose(y - mean_f(X, mean_f_params)) @ alpha) - np.sum(np.log(np.diagonal(L))) - 0.5 * n * np.log(2*np.pi)
+    neg_log_likelihood = 0.5 * (np.transpose(y - mean_f(X, mean_f_params)) @ alpha) + np.sum(np.log(np.diagonal(L))) + 0.5 * n * np.log(2*np.pi)
 
-    return log_likelihood
+    return neg_log_likelihood
 
     
 def pred_neg_log_likelihood(true_targets, mean, cov, target_noise=0, jitter=1e-5):
@@ -103,7 +104,7 @@ def pred_neg_log_likelihood(true_targets, mean, cov, target_noise=0, jitter=1e-5
 
     # Cholesky decomposition
     L = np.linalg.cholesky(cov + (target_noise + jitter) * np.eye(n))
-    L_inv = np.linalg.inv(L) # inverse of Cholesky decomposition
+    L_inv = np.linalg.pinv(L) # inverse of Cholesky decomposition
 
     alpha = np.transpose(L_inv) @ (L_inv @ (true_targets - mean)) # intermediary helper value
 
