@@ -39,7 +39,7 @@ def plot_mean(x, mean, x_label='', y_label=''):
             None
     '''
 
-    plt.plot(x, mean, label='mean', color='red', zorder=10)
+    plt.plot(x, mean, label='mean', color='red', zorder=10, linewidth=0.5)
 
     plt.legend()
 
