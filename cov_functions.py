@@ -74,6 +74,3 @@ def matern_half(X, Y, params):
     dists = distance.cdist(X, Y, metric='euclidean')
 
     return alpha**2 * np.exp(-dists / beta)
-
-def foo():
-    print('it still worked!')
