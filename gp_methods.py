@@ -79,7 +79,7 @@ def neg_marg_log_likelihood(params, n_mean_f_params, mean_f, cov_f, X, y, target
 
     neg_log_likelihood = 0.5 * (np.transpose(y - mean_f(X, mean_f_params)) @ alpha) + np.sum(np.log(np.diagonal(L))) + 0.5 * n * np.log(2*np.pi)
 
-    return neg_log_likelihood
+    return np.squeeze(neg_log_likelihood)
 
     
 def pred_neg_log_likelihood(true_targets, mean, cov, target_noise=0, jitter=1e-5):
