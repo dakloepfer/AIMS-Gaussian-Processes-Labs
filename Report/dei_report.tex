@@ -1,6 +1,8 @@
 \documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
 
-\title{Data, Estimation, and Inference Lab Assignment Report \\
+\title{Data, Estimation, and Inference Lab  Report \\
         \large{AIMS CDT 2020}}
 
 \author{Dominik Kloepfer}
@@ -8,5 +10,50 @@
 \begin{document}
     \maketitle
 
-    asdlfasldkfj
+    \section{Background}
+        The task in this lab assignment was to explore the capabilities of Gaussian Processes (GP) applied to a dataset containing weather sensor data from the Port of Southampton. Before discussing my methods and results, I will first give a quick introduction to the mathematical background.
+
+        \subsection{Gaussian Processes}
+            A Gaussian Process is a collection of (infinitely many) random variables, one for each point in its domain, such that every finite collection of these random variables has a jointly Gaussian distribution. This means that a GP does not predict a single function given some data but rather a distribution of functions. To sample from this distribution, one effectively fixes a (large) number of (closely spaced) points in the domain and samples from the multivariate Gaussian distribution for this collection of points that the GP prescribes.
+
+            In more mathematical terms, if $\boldsymbol{f}$ is the vector of $n$ function values at the $n$ p-dimensional points in the domain $X$ (so $X$ is an $n\times p$-matrix), then we sample $\boldsymbol{f}$ by using
+
+            \begin{equation}
+                \boldsymbol{f} \sim \mathcal{N}(\boldsymbol{\mu}(X), K(X, X)),
+            \end{equation}
+
+            where $\boldsymbol{\mu}$ and $K$ are the mean vector and the covariance matrix respectively. 
+
+            As alluded to by the above notation, mean and covariance matrix are given by functions that return the mean of the function value at the given point and the covariance between the function values at two given points. The practitioner encodes any prior domain knowledge into tese functions, and they then get modified by the observation of training data.\\
+
+            Gaussian Processes incorporate training data by conditioning the multivariate Gaussian distribution on observing a given set of function values at training data points. If we let the training set consist of the values $\boldsymbol{y}$ (i.i.d with a normal distribution around the true function values $\boldsymbol{f}$ with variance $\sigma_n^2$) at points $X$, then the distribution for the function values $\boldsymbol{f}_\star$ at points $X_\star$ conditioned on the training data is 
+
+            \begin{align}
+                \boldsymbol{f}_\star | X_\star, \boldsymbol{y}, X &\sim \mathcal{N}(\boldsymbol{\bar{f}}_\star, \textrm{cov}(\boldsymbol{f}_\star)), \textrm{ where} \\
+                \boldsymbol{\bar{f}}_\star &\equiv  \mathbb{E}[\boldsymbol{f}_\star | X_\star, \boldsymbol{y}, X] = \boldsymbol{\mu}(X_\star) + K(X_\star, X)[K(X, X) + \sigma_n^2I]^{-1}\boldsymbol{y}, \\ 
+                \textrm{cov}(\boldsymbol{f}_\star) &= K(X_\star, X_\star) - K(X_\star, X)[K(X, X) + \sigma_n^2I]^{-1}K(X, X_\star).
+            \end{align}
+           
+        \subsection{Marginal Log-Likelihood}
+
+            Given measurements $\boldsymbol{y}$ at points $X$ with variance $\sigma_n^2$, one can marginalise out different possible function draws to calculate the marginal likelihood:
+
+            \begin{equation}
+                p(\boldsymbol{y}|X) = \int p(\boldsymbol{y}|\boldsymbol{f}, X)p(\boldsymbol{f}|X)d\boldsymbol{f}.
+            \end{equation}
+
+            Using standard Gaussian identities, this becomes the log-marginal likelihood with the following closed form:
+
+            \begin{equation}
+                \log p(\boldsymbol{y}|X) = -\frac{1}{2}(\boldsymbol{y}-\boldsymbol{\mu}(X))^\top (K + \sigma_n^2I)^{-1} (\boldsymbol{y}-\boldsymbol{\mu}(X)) - \frac{1}{2}\log |K + \sigma_n^2I| - \frac{n}{2}\log2\pi.
+            \end{equation} 
+
+            This formula can be used for finding better prior mean and covariance functions by incorporating hyperparameters in their definitions and maximising the marginal log-likelihood of the training data with respect to these function parameters.
+
+            It can also be used as a metric for comparing different models by computing the marginal log-likelihood of ground truth data; for a good model that predicts the ground truth values well the marginal log-likelihood will be larger.
+            
+    \section{Predicting Missing Values}
+
+    \section{Sequential Prediction}
+
 \end{document}
