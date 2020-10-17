@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-#TODO check this whole function with the true values given; check if Cholesky transform method does in the end avoid conditioning errors (check with source potentially)
+
 def posterior_predictive_distr(X, y, target_noise, X_star, mean_f, cov_f, jitter=1e-5):
     '''
         Compute and returns the mean and covariance of the posterior predictive distribution at the m test points (dimension d) given known target values at n points (the known target values may have some variance)
