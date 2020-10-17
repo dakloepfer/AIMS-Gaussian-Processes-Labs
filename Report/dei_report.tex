@@ -51,8 +51,24 @@
             This formula can be used for finding better prior mean and covariance functions by incorporating hyperparameters in their definitions and maximising the marginal log-likelihood of the training data with respect to these function parameters.
 
             It can also be used as a metric for comparing different models by computing the marginal log-likelihood of ground truth data; for a good model that predicts the ground truth values well the marginal log-likelihood will be larger.
-            
+
     \section{Predicting Missing Values}
+
+            In the first step of the investigation, the GP model was used to interpolate missing values in a time series. This was done by conditioning the posterior distribution on the known datapoints; the posterior distribution was then visualised through its mean function and bands corresponding to function draws one and two standard deviations removed from the mean.
+    
+            For lack of space I will illustrate the process and the results for the two variables of air temperature (in degrees Celsius) and tide height (in m). The time variable is measured in hours since the first measurement in the dataset. For both of these the injection of artificial noise (jitter) was necessary to ensure numerical stability of the operations involved in the optimisation.
+            
+            \subsection{Interpolation of Air Temperature}
+
+                For the prior mean function I chose a constant function for simplicity; as one might have expected, the optimisation algorithm chose for this constant a value that was very close to the mean value of the complete dataset, despite the mean of the training data being different by %TODO
+                . For the covariance function I chose a Matérn-1/2 with two parameters based on the training data looking similar to the type of functions that Matérn-1/2 covariance function would encourage.
+
+                As one can see in the results in Figure %TODO
+                , the posterior mean function tracks the training data very well and the variance increases quickly in the larger gaps between training datapoints. While the datapoints belonging to the ground truth are not always perfectly predicted, the uncertainty estimate seems reasonably well calibrated and roughly the expected number of ground truth datapoints fall within one and two standard deviations of the posterior mean function.
+
+            \subsection{Interpolation of Tide Height}
+
+                Here too I chose a constant prior mean function for simplicity, and here too the optimised value of the constant was very close to the mean value of the complete dataset. Since the tide height is known to have a period of twelve hours, I chose the sum of a periodic function and an exponentiated quadratic as prior covariance function; this combination means that the predicted value for the tide height is influenced both by other points shifted by a whole number of periods and some points closer by. %TODO -- make some more experiments, allow for different weights given to RBF and periodic cov_f (a + b not a + a)
 
     \section{Sequential Prediction}
 
