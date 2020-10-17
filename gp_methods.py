@@ -1,5 +1,5 @@
 import numpy as np
-
+import scipy
 #TODO check this whole function with the true values given; check if Cholesky transform method does in the end avoid conditioning errors (check with source potentially)
 def posterior_predictive_distr(X, y, target_noise, X_star, mean_f, cov_f, jitter=1e-5):
     '''
@@ -29,15 +29,15 @@ def posterior_predictive_distr(X, y, target_noise, X_star, mean_f, cov_f, jitter
     L = np.linalg.cholesky(cov_f(X, X) + (target_noise + jitter) * np.eye(n))
 
     # Compute repeated terms
-    L_inv = np.linalg.pinv(L) # inverse of Cholesky decomposition
     k_star = cov_f(X_star, X) # prior covariance matrix at the test points with the data points as computed by cov_f
 
     # Compute mean_star
-    alpha = np.transpose(L_inv) @ (L_inv @ (y - mean_f(X))) # intermediary helper value
+    helper_vec = scipy.linalg.solve_triangular(L, y - mean_f(X), lower=True) # intermediary helper vector to compute alpha
+    alpha = scipy.linalg.solve_triangular(np.transpose(L), helper_vec)
     mean_star = mean_f(X_star) + (k_star @ alpha)
 
     # Compute cov_star
-    v = L_inv @ np.transpose(k_star) # intermediary helper value
+    v = scipy.linalg.solve_triangular(L, np.transpose(k_star), lower=True) # intermediary helper value
     cov_star = cov_f(X_star, X_star) - np.transpose(v) @ v
 
     return mean_star, cov_star
@@ -73,9 +73,9 @@ def neg_marg_log_likelihood(params, n_mean_f_params, mean_f, cov_f, X, y, target
 
     # Cholesky decomposition
     L = np.linalg.cholesky(cov_f(X, X, cov_f_params) + (target_noise + jitter) * np.eye(n))
-    L_inv = np.linalg.pinv(L) # inverse of Cholesky decomposition
-
-    alpha = np.transpose(L_inv) @ (L_inv @ (y - mean_f(X, mean_f_params))) # intermediary helper value
+    
+    helper_vec = scipy.linalg.solve_triangular(L, y - mean_f(X, mean_f_params), lower=True) # intermediary helper vector to compute alpha
+    alpha = scipy.linalg.solve_triangular(np.transpose(L), helper_vec) # another intermediary helper value
 
     neg_log_likelihood = 0.5 * (np.transpose(y - mean_f(X, mean_f_params)) @ alpha) + np.sum(np.log(np.diagonal(L))) + 0.5 * n * np.log(2*np.pi)
 
@@ -104,9 +104,9 @@ def pred_neg_log_likelihood(true_targets, mean, cov, target_noise=0, jitter=1e-5
 
     # Cholesky decomposition
     L = np.linalg.cholesky(cov + (target_noise + jitter) * np.eye(n))
-    L_inv = np.linalg.pinv(L) # inverse of Cholesky decomposition
 
-    alpha = np.transpose(L_inv) @ (L_inv @ (true_targets - mean)) # intermediary helper value
+    helper_vec = scipy.linalg.solve_triangular(L, true_targets - mean, lower=True) # intermediary helper vector to compute alpha
+    alpha = scipy.linalg.solve_triangular(np.transpose(L), helper_vec) # another intermediary helper value
 
     neg_log_likelihood = 0.5 * (np.transpose(true_targets - mean) @ alpha) + np.sum(np.log(np.diagonal(L))) + 0.5 * n * np.log(2*np.pi)
 
