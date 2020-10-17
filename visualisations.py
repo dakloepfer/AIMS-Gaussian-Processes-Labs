@@ -68,7 +68,7 @@ def plot_mean(x, mean, x_label=None, y_label=None):
             None
     '''
 
-    plt.plot(x, mean, label='mean', color='red', zorder=10, linewidth=0.5)
+    plt.plot(x, mean, label='mean', color='red', zorder=10, linewidth=0.75)
 
     plt.legend()
 
@@ -111,3 +111,34 @@ def plot_uncertainty(x, mean, cov_matrix, n_stdevs=1, x_label=None, y_label=None
         plt.xlabel(x_label)
     if y_label:
         plt.ylabel(y_label)
+
+
+def plot_function_draws(x, mean, cov_matrix, n_draws=3, x_label=None, y_label=None):
+    '''
+        Plots several function draws from the posterior distribution.
+
+        Args:
+            x: n x 1 array of x-values (should be quite dense); function will be evaluated at these points
+            mean: n x 1 array of predicted mean values
+            cov_matrix: n x n array of the posterior covariance matrix of the points
+            n_draws: integer; number of function draws that should be plotted
+            x_label: optional string, label for the x-axis
+            y_label: optional string, label for the y-axis
+
+        Returns: 
+            None
+    '''
+    mean = np.squeeze(mean)
+    
+    for i in range(0, n_draws):
+
+        y = np.random.default_rng().multivariate_normal(mean, cov_matrix)
+        plt.plot(x, y, label='sampled function %d' %(i+1), zorder=9, linewidth=0.75)
+
+    plt.legend()
+
+    if x_label:
+        plt.xlabel(x_label)
+    if y_label:
+        plt.ylabel(y_label)
+
