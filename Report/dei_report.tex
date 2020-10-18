@@ -1,6 +1,9 @@
 \documentclass{article}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
 
 \title{Data, Estimation, and Inference Lab  Report \\
         \large{AIMS CDT 2020}}
@@ -52,7 +55,7 @@
 
             It can also be used as a metric for comparing different models by computing the marginal log-likelihood of ground truth data; for a good model that predicts the ground truth values well the marginal log-likelihood will be larger.
 
-    \section{Predicting Missing Values}
+    \section{Predicting Missing Values} \label{sec_interpolation}
 
             In the first step of the investigation, the GP model was used to interpolate missing values in a time series. This was done by conditioning the posterior distribution on the known datapoints; the posterior distribution was then visualised through its mean function and bands corresponding to function draws one and two standard deviations removed from the mean.
     
@@ -71,31 +74,40 @@
                 Here too I chose a constant prior mean function for simplicity, and here too the optimised value of the constant was very close to the mean value of the complete dataset. Since the tide height is known to have a period of twelve hours, I chose the linear combination of a periodic function and an exponentiated quadratic as prior covariance function; this combination means that the predicted value for the tide height is influenced both by other points shifted by a whole number of periods and also by points close to the point in question. As can be seen in figure %TODO
                 , this leads to a very good fit; the variance of the posterior distribution is quite low but this is justified since it fits the ground truth data very well.
 
-    \section{Extrapolation using Gaussian Processes}
+%    \section{Extrapolation using Gaussian Processes}
+%
+%            Extrapolating the function outside of the domain of the training data proceeds similarly to the prediction of missing values. The difference is that the posterior distribution is now calculated by conditioning all the datapoints up to a certain time, with the remaining datapoints predicted using the posterior mean function.
+%
+%            \subsection{Extrapolation of Air Temperature}
+%
+%
+%
+%            \subsection{Extrapolation of Tide Height}
+%
+%                Due to the good performance on the interpolation of the tide height, here too I chose a constant mean function and a linear combination of periodic function and exponentiated quadratic as the covariance function.
+%
+%                As can be seen in the results in figure %TODO
+%                , the model fails to accurately extrapolate when only given the earliest 10\% of readings. These do not cover a whole period, so the training data can be fitted purely by using the exponentiated quadratic term in the covariance function and the periodic term is neglected. When the model is provided with more training data, this issue is alleviated and the model starts to fit the unseen data better. 
+%
 
-            Extrapolating the function outside of the domain of the training data proceeds similarly to the prediction of missing values. The difference is that the posterior distribution is now calculated by conditioning all the datapoints up to a certain time, with the remaining datapoints predicted using the posterior mean function.
+    \section{Sequential Prediction}
+            
+            In this section, the predictions and uncertainty for each point were calculated individually using all the training points up to a fixed lookahead before the point in question; the function value at time $t$ is predicted using the training data points up to time $t-\textrm{lookahead}$.
 
-            \subsection{Extrapolation of Air Temperature}
+            In implementing this, I used the same mean and covariance functions as in \cref{sec_interpolation} whose hyperparameters were optimised using all available data; while this leads to a better fit to the data than one would expect during actual deployment, it allows us to investigate the effect of varying the lookahead without any confounding effect from bad hyperparameters.
 
+            \subsection{Sequential Prediction of Air Temperature} 
 
+                The Matérn-1/2 covariance function used leads to an excellent fit for small lookahead, but as the lookahead gets larger we start to see a more and more pronounced translation of the posterior mean function to the right compared to the ground truth values. This can be explained by the fact that the Matérn-1/2 function is unable to anticipate rapid changes in function value because it is a local covariance function and so assumes that the closest training datapoint has the largest predictive power for the point that the GP is currently trying to predict. If the closest training datapoint is however quite far removed due to a large lookahead, it does not contain any real indication that in the ground truth data a rapid change in function value occurs at the point in question.
 
-            \subsection{Extrapolation of Tide Height}
+                The uncertainty estimates however seem well calibrated and as expected are larger for larger lookaheads and for regions with rapid changes in function value.
 
-                Due to the good performance on the interpolation of the tide height, here too I chose a constant mean function and a linear combination of periodic function and exponentiated quadratic as the covariance function.
+            \subsection{Sequential Prediction of Tide Height}
 
-                As can be seen in the results in figure %TODO
-                , the model fails to accurately extrapolate when only given the earliest 10\% of readings. These do not cover a whole period, so the training data can be fitted purely by using the exponentiated quadratic term in the covariance function and the periodic term is neglected. When the model is provided with more training data, this issue is alleviated and the model starts to fit the unseen data better. 
+                The posterior mean function fits the ground truth data quite well, even for large lookaheads. This is likely a consequence of the very regular and periodic tide height being easy to predict given a well-calibrated covariance function.
 
+                It is noticeable that as the lookahead grows, the uncertainty grows significantly especially for the first period, likely because the GP does not have many training datapoints for the first few datapoints, especially for a large lookahead.
+                The GP also has trouble anticipating slightly lower or larger amplitudes when using a large lookahead because it is difficult to anticipate the tide height levelling off earlier than before when the training data barely includes any points from the current period.
 
-    \section{Lookahead}
-            %TODO
-            - used optimum hyperparameters to see purely effect of sequential prediction without bad hyperparameters confounding
-            - describe what I actually did
-
-            - for air temp: matern-1/2 cov function leads to characteristic translation of ground truth because if lookahead is large then the last known point has largest influence -- if last known point is high spike, then current point will also be high; earlier points did not see the spike yet and later points see that it was just a spike (the influence of the spike is then smaller than the influence of lower values later again)
-            - larger lookahead leads to larger uncertainty, as expected
-
-            - for tide height: fits the function generally well even for large lookaheads, covariance function is well-calibrated and the very periodic nature of the tide height is easy to fit
-            - as lookahead grows, uncertainty for the first period grows because for large lookaheads the GP did not see many relevant values yet at the beginning so the uncertainty is large
 
 \end{document}
