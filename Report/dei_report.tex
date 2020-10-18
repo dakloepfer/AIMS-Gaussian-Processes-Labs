@@ -68,8 +68,34 @@
 
             \subsection{Interpolation of Tide Height}
 
-                Here too I chose a constant prior mean function for simplicity, and here too the optimised value of the constant was very close to the mean value of the complete dataset. Since the tide height is known to have a period of twelve hours, I chose the sum of a periodic function and an exponentiated quadratic as prior covariance function; this combination means that the predicted value for the tide height is influenced both by other points shifted by a whole number of periods and some points closer by. %TODO -- make some more experiments, allow for different weights given to RBF and periodic cov_f (a + b not a + a)
+                Here too I chose a constant prior mean function for simplicity, and here too the optimised value of the constant was very close to the mean value of the complete dataset. Since the tide height is known to have a period of twelve hours, I chose the linear combination of a periodic function and an exponentiated quadratic as prior covariance function; this combination means that the predicted value for the tide height is influenced both by other points shifted by a whole number of periods and also by points close to the point in question. As can be seen in figure %TODO
+                , this leads to a very good fit; the variance of the posterior distribution is quite low but this is justified since it fits the ground truth data very well.
 
-    \section{Sequential Prediction}
+    \section{Extrapolation using Gaussian Processes}
+
+            Extrapolating the function outside of the domain of the training data proceeds similarly to the prediction of missing values. The difference is that the posterior distribution is now calculated by conditioning all the datapoints up to a certain time, with the remaining datapoints predicted using the posterior mean function.
+
+            \subsection{Extrapolation of Air Temperature}
+
+
+
+            \subsection{Extrapolation of Tide Height}
+
+                Due to the good performance on the interpolation of the tide height, here too I chose a constant mean function and a linear combination of periodic function and exponentiated quadratic as the covariance function.
+
+                As can be seen in the results in figure %TODO
+                , the model fails to accurately extrapolate when only given the earliest 10\% of readings. These do not cover a whole period, so the training data can be fitted purely by using the exponentiated quadratic term in the covariance function and the periodic term is neglected. When the model is provided with more training data, this issue is alleviated and the model starts to fit the unseen data better. 
+
+
+    \section{Lookahead}
+            %TODO
+            - used optimum hyperparameters to see purely effect of sequential prediction without bad hyperparameters confounding
+            - describe what I actually did
+
+            - for air temp: matern-1/2 cov function leads to characteristic translation of ground truth because if lookahead is large then the last known point has largest influence -- if last known point is high spike, then current point will also be high; earlier points did not see the spike yet and later points see that it was just a spike (the influence of the spike is then smaller than the influence of lower values later again)
+            - larger lookahead leads to larger uncertainty, as expected
+
+            - for tide height: fits the function generally well even for large lookaheads, covariance function is well-calibrated and the very periodic nature of the tide height is easy to fit
+            - as lookahead grows, uncertainty for the first period grows because for large lookaheads the GP did not see many relevant values yet at the beginning so the uncertainty is large
 
 \end{document}
