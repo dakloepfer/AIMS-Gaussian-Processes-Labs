@@ -84,7 +84,7 @@ def plot_uncertainty(x, mean, cov_matrix, n_stdevs=1, x_label=None, y_label=None
         Args:
             x: n x 1 array of x-values (should be quite dense)
             mean: n x 1 array of predicted mean values
-            cov_matrix: n x n array of the posterior covariance matrix of the points
+            cov_matrix: n x n array of the posterior covariance matrix of the points or n x 1 vector of the standard deviations directly
             n_stdevs: integer or list of integers; function either fills in only the single band given by a single integer or all the bands given in the list with varying shadings
             x_label: optional string, label for the x-axis
             y_label: optional string, label for the y-axis
@@ -93,7 +93,10 @@ def plot_uncertainty(x, mean, cov_matrix, n_stdevs=1, x_label=None, y_label=None
             None
     '''
 
-    stdevs = np.sqrt(np.diagonal(cov_matrix))
+    if np.shape(cov_matrix)[0] == np.shape(cov_matrix)[1]:
+        stdevs = np.sqrt(np.diagonal(cov_matrix))
+    else:
+        stdevs = np.squeeze(cov_matrix)
 
     if np.isscalar(n_stdevs):
         n_stdevs = [n_stdevs]
@@ -129,7 +132,7 @@ def plot_function_draws(x, mean, cov_matrix, n_draws=3, x_label=None, y_label=No
             None
     '''
     mean = np.squeeze(mean)
-    
+
     for i in range(0, n_draws):
 
         y = np.random.default_rng().multivariate_normal(mean, cov_matrix)
