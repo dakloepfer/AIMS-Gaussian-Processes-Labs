@@ -105,8 +105,8 @@ def plot_uncertainty(x, mean, cov_matrix, n_stdevs=1, x_label=None, y_label=None
 
         upper_limit = np.squeeze(mean) + n*stdevs
         lower_limit = np.squeeze(mean) - n*stdevs
-
-        plt.fill_between(np.squeeze(x), upper_limit, lower_limit, label='%d stdevs' %n, zorder=-10*n, color='red', alpha=1/(n+2), edgecolor='none')
+        
+        plt.fill_between(np.squeeze(x), upper_limit, lower_limit, label='%d stdevs' %n, zorder=-10*n, color=(1, 1-1/(2*n-0.5), 1-1/(2*n-0.5)), edgecolor='none')
 
     plt.legend()
 
