@@ -119,19 +119,19 @@
 
                 The uncertainty estimates however seem well calibrated and as expected are larger for a larger lookahead and for regions with rapid changes in function value.
 
-                \begin{figure}[h!]
+                \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_5mins.eps}
                     \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of five minutes. The mean function shows a very good fit to the ground truth but one can already see larger variance in regions with relatively rapid changes in the ground truths.}
                     \label{plot_airtemplookahead_5mins}
                 \end{figure}
 
-                \begin{figure}[h!]
+                \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_30mins.eps}
                     \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of 30 minutes. The fit of the mean function to the ground truth data is still reasonably good, and the posterior variance has grown to account for the errors that do develop.}
                     \label{plot_airtemplookahead_30mins}
                 \end{figure}
 
-                \begin{figure}[h!]
+                \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_240mins.eps}
                     \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of two hours. One can now very noticeably see that the mean function is translated to the right with respect to the ground truth datapoints.}
                     \label{plot_airtemplookahead_240mins}
@@ -145,19 +145,19 @@
                 It is noticeable that as the lookahead grows, the uncertainty grows significantly for the first period in particular (compare \cref{plot_tideheightlookahead_5mins} and \cref{plot_tideheightlookahead_30mins}), likely because the GP does not have many training datapoints for the first few datapoints. This is especially pronounced for a large lookahead (\cref{plot_tideheightlookahead_240mins}).
                 The GP also has trouble anticipating slightly lower or larger amplitudes when using a large lookahead because it is difficult to anticipate the tide height levelling off earlier than before when the training data barely includes any points from the current period.
 
-                \begin{figure}[h!]
+                \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{tide_height_lookahead_5mins.eps}
                     \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting tide height measurements with a lookahead of five minutes. The mean function shows a very good fit to the ground truth, with generally small variances.}
                     \label{plot_tideheightlookahead_5mins}
                 \end{figure}
 
-                \begin{figure}[h!]
+                \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{tide_height_lookahead_30mins.eps}
                     \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting tide height measurements with a lookahead of 30 minutes. The fit of the mean function to the ground truth data is still reasonably good but we can see the variances to grow, especially for the first period.}
                     \label{plot_tideheightlookahead_30mins}
                 \end{figure}
 
-                \begin{figure}[h!]
+                \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{tide_height_lookahead_240mins.eps}
                     \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting tide height measurements with a lookahead of two hours. The mean function still roughly follows the ground truth data, but fails to predict the tide height accurately at the peaks of the plot and especially for the first period where the Gaussian Process only has very few training datapoints to predict the amplitude of the function. This is reflected in much larger posterior variances.}
                     \label{plot_tideheightlookahead_240mins}
