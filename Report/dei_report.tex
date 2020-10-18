@@ -3,6 +3,11 @@
 \usepackage{amsfonts}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\usepackage{graphicx}
+\graphicspath{ {./plots/} }
+
+\usepackage{placeins}
+
 
 
 \title{Data, Estimation, and Inference Lab  Report \\
@@ -66,14 +71,26 @@
                 For the prior mean function I chose a constant function for simplicity; as one might have expected, the optimisation algorithm chose for this constant a value that was very close to the mean value of the complete dataset, despite the mean of the training data being different by %TODO
                 . For the covariance function I chose a Matérn-1/2 with two parameters based on the training data looking similar to the type of functions that Matérn-1/2 covariance function would encourage.
 
-                As one can see in the results in Figure %TODO
-                , the posterior mean function tracks the training data very well and the variance increases quickly in the larger gaps between training datapoints. While the datapoints belonging to the ground truth are not always perfectly predicted, the uncertainty estimate seems reasonably well calibrated and roughly the expected number of ground truth datapoints fall within one and two standard deviations of the posterior mean function.
+                As one can see in the results in \cref{plot_airtempinterpolation}, the posterior mean function tracks the training data very well and the variance increases quickly in the larger gaps between training datapoints. While the datapoints belonging to the ground truth are not always perfectly predicted, the uncertainty estimate seems reasonably well calibrated and roughly the expected number of ground truth datapoints fall within one and two standard deviations of the posterior mean function.
 
+                \begin{figure}
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_interpolation.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when interpolating missing air temperature measurements. The variance of the posterior distribution increases quickly in the gaps between training datapoints.}
+                    \label{plot_airtempinterpolation}
+                \end{figure}
+
+            \FloatBarrier
             \subsection{Interpolation of Tide Height}
 
-                Here too I chose a constant prior mean function for simplicity, and here too the optimised value of the constant was very close to the mean value of the complete dataset. Since the tide height is known to have a period of twelve hours, I chose the linear combination of a periodic function and an exponentiated quadratic as prior covariance function; this combination means that the predicted value for the tide height is influenced both by other points shifted by a whole number of periods and also by points close to the point in question. As can be seen in figure %TODO
-                , this leads to a very good fit; the variance of the posterior distribution is quite low but this is justified since it fits the ground truth data very well.
+                Here too I chose a constant prior mean function for simplicity, and here too the optimised value of the constant was very close to the mean value of the complete dataset. Since the tide height is known to have a period of twelve hours, I chose the linear combination of a periodic function and an exponentiated quadratic as prior covariance function; this combination means that the predicted value for the tide height is influenced both by other points shifted by a whole number of periods and also by points close to the point in question. As can be seen in \cref{plot_tideheightinterpolation}, this leads to a very good fit; the variance of the posterior distribution is quite low but this is justified since it fits the ground truth data very well.
 
+                \begin{figure}
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{tide_height_interpolation.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when interpolating missing tide height measurements. The mean function shows a very good fit to the ground truth, so the relatively low variance of the posterior distribution is justified.}
+                    \label{plot_tideheightinterpolation}
+                \end{figure}
+
+            \FloatBarrier
 %    \section{Extrapolation using Gaussian Processes}
 %
 %            Extrapolating the function outside of the domain of the training data proceeds similarly to the prediction of missing values. The difference is that the posterior distribution is now calculated by conditioning all the datapoints up to a certain time, with the remaining datapoints predicted using the posterior mean function.
@@ -98,16 +115,51 @@
 
             \subsection{Sequential Prediction of Air Temperature} 
 
-                The Matérn-1/2 covariance function used leads to an excellent fit for small lookahead, but as the lookahead gets larger we start to see a more and more pronounced translation of the posterior mean function to the right compared to the ground truth values. This can be explained by the fact that the Matérn-1/2 function is unable to anticipate rapid changes in function value because it is a local covariance function and so assumes that the closest training datapoint has the largest predictive power for the point that the GP is currently trying to predict. If the closest training datapoint is however quite far removed due to a large lookahead, it does not contain any real indication that in the ground truth data a rapid change in function value occurs at the point in question.
+                The Matérn-1/2 covariance function used leads to an excellent fit for small lookahead (\cref{plot_airtemplookahead_5mins}), but as the lookahead gets larger we start to see a more and more pronounced translation of the posterior mean function to the right compared to the ground truth values (\cref{plot_airtemplookahead_30mins} and especially \cref{plot_airtemplookahead_240mins}). This can be explained by the fact that the Matérn-1/2 function is unable to anticipate rapid changes in function value because it is a local covariance function and so assumes that the closest training datapoint has the largest predictive power for the point that the GP is currently trying to predict. If the closest training datapoint is however quite far removed due to a large lookahead, it does not contain any real indication that in the ground truth data a rapid change in function value occurs at the point in question.
 
-                The uncertainty estimates however seem well calibrated and as expected are larger for larger lookaheads and for regions with rapid changes in function value.
+                The uncertainty estimates however seem well calibrated and as expected are larger for a larger lookahead and for regions with rapid changes in function value.
 
+                \begin{figure}[h!]
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_5mins.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of five minutes. The mean function shows a very good fit to the ground truth but one can already see larger variance in regions with relatively rapid changes in the ground truths.}
+                    \label{plot_airtemplookahead_5mins}
+                \end{figure}
+
+                \begin{figure}[h!]
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_30mins.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of 30 minutes. The fit of the mean function to the ground truth data is still reasonably good, and the posterior variance has grown to account for the errors that do develop.}
+                    \label{plot_airtemplookahead_30mins}
+                \end{figure}
+
+                \begin{figure}[h!]
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_240mins.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of two hours. One can now very noticeably see that the mean function is translated to the right with respect to the ground truth datapoints.}
+                    \label{plot_airtemplookahead_240mins}
+                \end{figure}
+            
+            \FloatBarrier
             \subsection{Sequential Prediction of Tide Height}
 
-                The posterior mean function fits the ground truth data quite well, even for large lookaheads. This is likely a consequence of the very regular and periodic tide height being easy to predict given a well-calibrated covariance function.
+                As can be seen in \cref{plot_tideheightlookahead_5mins}, \cref{plot_tideheightlookahead_30mins}, and \cref{plot_tideheightlookahead_240mins}, even for a large lookahead the posterior mean function fits the ground truth data quite well. This is likely a consequence of the very regular and periodic tide height being easy to predict given a well-calibrated covariance function.
 
-                It is noticeable that as the lookahead grows, the uncertainty grows significantly especially for the first period, likely because the GP does not have many training datapoints for the first few datapoints, especially for a large lookahead.
+                It is noticeable that as the lookahead grows, the uncertainty grows significantly for the first period in particular (compare \cref{plot_tideheightlookahead_5mins} and \cref{plot_tideheightlookahead_30mins}), likely because the GP does not have many training datapoints for the first few datapoints. This is especially pronounced for a large lookahead (\cref{plot_tideheightlookahead_240mins}).
                 The GP also has trouble anticipating slightly lower or larger amplitudes when using a large lookahead because it is difficult to anticipate the tide height levelling off earlier than before when the training data barely includes any points from the current period.
 
+                \begin{figure}[h!]
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{tide_height_lookahead_5mins.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting tide height measurements with a lookahead of five minutes. The mean function shows a very good fit to the ground truth, with generally small variances.}
+                    \label{plot_tideheightlookahead_5mins}
+                \end{figure}
 
+                \begin{figure}[h!]
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{tide_height_lookahead_30mins.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting tide height measurements with a lookahead of 30 minutes. The fit of the mean function to the ground truth data is still reasonably good but we can see the variances to grow, especially for the first period.}
+                    \label{plot_tideheightlookahead_30mins}
+                \end{figure}
+
+                \begin{figure}[h!]
+                    \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{tide_height_lookahead_240mins.eps}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting tide height measurements with a lookahead of two hours. The mean function still roughly follows the ground truth data, but fails to predict the tide height accurately at the peaks of the plot and especially for the first period where the Gaussian Process only has very few training datapoints to predict the amplitude of the function. This is reflected in much larger posterior variances.}
+                    \label{plot_tideheightlookahead_240mins}
+                \end{figure}
 \end{document}
