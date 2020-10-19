@@ -1,0 +1,9 @@
+
+# remove unnecessary latex compiling files
+*.pdf
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
