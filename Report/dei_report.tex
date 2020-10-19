@@ -68,8 +68,7 @@
             
             \subsection{Interpolation of Air Temperature}
 
-                For the prior mean function I chose a constant function for simplicity; as one might have expected, the optimisation algorithm chose for this constant a value that was very close to the mean value of the complete dataset, despite the mean of the training data being different by %TODO
-                . For the covariance function I chose a Matérn-1/2 with two parameters based on the training data looking similar to the type of functions that Matérn-1/2 covariance function would encourage.
+                For the prior mean function I chose a constant function for simplicity; perhaps surprisingly, the optimisation algorithm chose for this constant a value that was higher than mean value of the dataset (it chose a value of 13.5 degrees Celsius instead of the mean of 11.9 degrees Celsius). For the covariance function I chose a Matérn-1/2 with two parameters based on the training data looking similar to the type of functions that Matérn-1/2 covariance function would encourage.
 
                 As one can see in the results in \cref{plot_airtempinterpolation}, the posterior mean function tracks the training data very well and the variance increases quickly in the larger gaps between training datapoints. While the datapoints belonging to the ground truth are not always perfectly predicted, the uncertainty estimate seems reasonably well calibrated and roughly the expected number of ground truth datapoints fall within one and two standard deviations of the posterior mean function.
 
@@ -117,7 +116,7 @@
 
                 The Matérn-1/2 covariance function used leads to an excellent fit for small lookahead (\cref{plot_airtemplookahead_5mins}), but as the lookahead gets larger we start to see a more and more pronounced translation of the posterior mean function to the right compared to the ground truth values (\cref{plot_airtemplookahead_30mins} and especially \cref{plot_airtemplookahead_240mins}). This can be explained by the fact that the Matérn-1/2 function is unable to anticipate rapid changes in function value because it is a local covariance function and so assumes that the closest training datapoint has the largest predictive power for the point that the GP is currently trying to predict. If the closest training datapoint is however quite far removed due to a large lookahead, it does not contain any real indication that in the ground truth data a rapid change in function value occurs at the point in question.
 
-                The uncertainty estimates however seem well calibrated and as expected are larger for a larger lookahead and for regions with rapid changes in function value.
+                The uncertainty estimates however seems mostly well calibrated and as expected are larger for a larger lookahead and for regions with rapid changes in function value (though it is arguably too small in regions of rapid change in \cref{plot_airtemplookahead_240mins}).
 
                 \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_5mins.eps}
@@ -133,7 +132,7 @@
 
                 \begin{figure}[ht!]
                     \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{air_temp_lookahead_240mins.eps}
-                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of two hours. One can now very noticeably see that the mean function is translated to the right with respect to the ground truth datapoints.}
+                    \caption{This plot shows the posterior mean function and the standard deviation that the posterior distribution assigns to each point when predicting air temperature measurements with a lookahead of two hours. One can now clearly see that the mean function is translated to the right with respect to the ground truth datapoints.}
                     \label{plot_airtemplookahead_240mins}
                 \end{figure}
             
