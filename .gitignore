@@ -1,6 +1,7 @@
 
 # remove unnecessary latex compiling files
-*.pdf
+./Report/*.pdf
+Report/plots/*.pdf
 *.aux
 *.fdb_latexmk
 *.fls
