@@ -3,7 +3,7 @@
 ./Report/*.pdf
 Report/plots/*.pdf
 *.aux
-*.fdb_latexmk
+*.fdb_latexmk 
 *.fls
 *.log
 *.out
